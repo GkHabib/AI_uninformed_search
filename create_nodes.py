@@ -38,6 +38,20 @@ def create_nodes():
 			
 	return graph
 
+def solution(node, start, visited_num):
+	path = []
+	current_node = node
+	path_cost = 0
+	while current_node.nodeId != start:
+		path.append(current_node.nodeId)
+		path_cost = path_cost + (current_node.find_neighbor(current_node.parent.nodeId)).distance
+		current_node = current_node.parent
+	print('visited: ', visited_num)
+	print('path: ', len(path))
+	print('distance: ', path_cost)
+	for node in reversed(path):
+		print(node, end=', ')
+
 def connect_nodes(graph):
 	edges_file = open('edges.txt', 'r')
 	while True:
