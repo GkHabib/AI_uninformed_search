@@ -17,6 +17,7 @@ def bfs(start, goal):
 	for node in frontier:
 		
 		for neighbor in node.neighbors:
+			
 			if(not neighbor.node.visited):
 				visited_num = visited_num + 1
 				neighbor.node.set_parent(node)
