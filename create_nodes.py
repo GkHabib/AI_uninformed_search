@@ -30,7 +30,7 @@ def create_nodes():
 			graph.add_node(temp_node)
 
 		except Exception as e:
-			break;
+			break
 		else:
 			pass
 		finally:
@@ -45,6 +45,27 @@ def solution(node, start, visited_num):
 	while current_node.nodeId != start:
 		path.append(current_node.nodeId)
 		path_cost = path_cost + (current_node.find_neighbor(current_node.parent.nodeId)).distance
+		current_node = current_node.parent
+	print('visited: ', visited_num)
+	print('path: ', len(path))
+	print('distance: ', path_cost)
+	for node in reversed(path):
+		print(node, end=', ')
+
+def ucs_solution(path, path_cost, visited_num):
+	print('visited: ', visited_num)
+	print('path: ', len(path))
+	print('distance: ', path_cost)
+	for node in reversed(path):
+		print(node, end=', ')
+
+def a_star_solution(node, start, visited_num):
+	path = []
+	current_node = node
+	path_cost = 0
+	while current_node.nodeId != start:
+		path.append(current_node.nodeId)
+		path_cost = path_cost + (current_node.find_no_access_neighbor(current_node.parent.nodeId)).distance
 		current_node = current_node.parent
 	print('visited: ', visited_num)
 	print('path: ', len(path))
@@ -71,6 +92,31 @@ def connect_nodes(graph):
 		finally:
 			pass
 
+def a_star_connect_nodes(graph):
+	edges_file = open('edges.txt', 'r')
+	while True:
+		try:
+			line = edges_file.readline()
+			if(line == ''): raise(Exception("End of File!"))
+			line = line[:-1]
+			line = list(line.split(' '))
+			node1 = graph.find_node(line[0])
+			node2 = graph.find_node(line[1])
+
+			node1.add_no_access_neighbor(Neighbor(node2, calc_distance(node1, node2)))
+			node2.add_no_access_neighbor(Neighbor(node1, calc_distance(node1, node2)))
+
+			node1.add_neighbor(Neighbor(node2, calc_distance(node1, node2), int(line[2])))
+			if(not line[3]):
+				node2.add_neighbor(Neighbor(node1, calc_distance(node1, node2)))
+		except Exception as e:
+			break
+		else:
+			pass
+		finally:
+			pass
+
+
 class Node:
 	
 	def __init__(self, _id='', _lat=0.0, _lon=0.0):
@@ -80,7 +126,10 @@ class Node:
 		self.lon = float(_lon)
 		self.neighbors = []
 		self.visited = False
-
+		self.depth = 0
+		self.cost = 0
+		self.inFrontier = False
+		self.no_access_neighbors = []
 
 	def __str__(self):
 
@@ -89,6 +138,9 @@ class Node:
 	def add_neighbor(self, _neighbor):
 		self.neighbors.append(_neighbor)
 
+	def add_no_access_neighbor(self, _neighbor):
+		self.no_access_neighbors.append(_neighbor)
+
 	def set_parent(self, _parent):
 		self.parent = _parent
 
@@ -96,11 +148,24 @@ class Node:
 		for neighbor in self.neighbors:
 			if neighbor.node.nodeId == _id : return neighbor
 
+	def find_no_access_neighbor(self, _id):
+		for neighbor in self.no_access_neighbors:
+			if neighbor.node.nodeId == _id : return neighbor
+
+	def set_depth(self, d):
+		self.depth = d
+
+	def set_cost(self, _cost):
+		self.cost = _cost
+
+	def __lt__(self, other):
+		return self.cost < other.cost
 class Neighbor:
 
-	def __init__(self, _node, _distance):
+	def __init__(self, _node, _distance, _limit=0):
 		self.node = _node
 		self.distance = _distance
+		self.speed_limit = _limit
 
 class Graph:
 	def __init__(self):
