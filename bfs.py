@@ -26,4 +26,5 @@ def bfs(start, goal):
 				neighbor.node.visited = True
 				frontier.append(neighbor.node)
 
-bfs(str(5930756061), str(5930756084))
+# bfs(str(5930756061), str(5930756084))
+bfs(str(5930756061), str(5843293191))
